@@ -15,23 +15,37 @@
 // see https://github.com/highfidelity/hifi/pull/11997 for info on using filters 
 //
 
-function filter(properties, type, originalProperties) {
+function filter(properties, filterType, originalProperties) {
 
     var SAVED_ENTITY_NAMES = [
         "Cemetery Candle"
     ];
 
-    if (type === Entities.DELETE_FILTER_TYPE) {
-        if (SAVED_ENTITY_NAMES.indexOf(originalProperties.name) !== -1) {
+    if (filterType === Entities.DELETE_FILTER_TYPE) {
+        SAVED_ENTITY_NAMES.forEach(function(name) {
+            if (name.indexOf(originalProperties.name) !== -1) {
+                return false;
+            }
+        });
+        return properties;
+    }
+    
+    if (filterType === Entities.EDIT_FILTER_TYPE) {
+        if (properties.name && properties.name !== originalProperties.name ||
+            properties.dimensions && properties.dimensions !== originalProperties.dimensions ||
+            properties.modelURL && properties.modelURL!== originalProperties.modelURL ||
+            properties.script && properties.script !== originalProperties.script ||
+            properties.serverScripts && properties.serverScripts !== originalProperties.serverScripts ||
+            properties.textures && properties.textures !== originalProperties.textures) {
             return false;
         }
     }
     return properties;
 }
 
-filter.wantsToFilterAdd = false; // don't run on adds
-filter.wantsToFilterEdit = false; // don't run on edits
+filter.wantsToFilterAdd = true;
+filter.wantsToFilterEdit = true; 
 filter.wantsToFilterPhysics = false; // don't run on physics
 filter.wantsToFilterDelete = true; // do run on deletes
-filter.wantsOriginalProperties = "name";
+filter.wantsOriginalProperties = ["name", "dimensions", "modelURL", "script", "serverScripts", "textures"];
 filter;
